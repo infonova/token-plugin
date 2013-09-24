@@ -1,0 +1,8 @@
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+  <f:entry title="${%Action}" field="action">
+    <f:select/>
+  </f:entry>
+  <f:entry title="${%Name of the System}" field="systemName">
+    <f:textbox/>
+  </f:entry>
+</j:jelly>
