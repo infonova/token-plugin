@@ -5,4 +5,7 @@
   <f:entry title="${%Name of the System}" field="systemName">
     <f:textbox/>
   </f:entry>
+  <f:entry title="${%Header Link}" field="headerLink">
+    <f:textbox/>
+  </f:entry>
 </j:jelly>

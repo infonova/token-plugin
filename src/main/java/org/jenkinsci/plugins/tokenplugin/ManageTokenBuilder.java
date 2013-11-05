@@ -39,16 +39,19 @@ public class ManageTokenBuilder extends Builder {
 
     private static final String UNLOCK_ACTION = "unlock";
     private static final String LOCK_ACTION = "lock";
+    private static final String SET_HEADERLINK_ACTION = "setHeaderLink";
 
     private static final String SYSTEM_REGEX = "^[a-zA-Z0-9_\\$\\{\\}]*$";
 
     private final String systemName;
+    private final String headerLink;
     private final String action;
 
     @DataBoundConstructor
-    public ManageTokenBuilder(String systemName, String action) {
+    public ManageTokenBuilder(String systemName, String action, String headerLink) {
         this.systemName = systemName;
         this.action = action;
+        this.headerLink = headerLink;
     }
 
     public String getSystemName() {
@@ -90,37 +93,52 @@ public class ManageTokenBuilder extends Builder {
         final PrintStream logger = listener.getLogger();
         boolean continueBuild = true;
 
+        String expandedSystemName;
         try {
-            final String expandedSystemName = TokenMacro.expandAll(build, listener, systemName);
-            if (StringUtils.isBlank(expandedSystemName)) {
-                logger.println("Please enter a name for the system");
-                continueBuild = false;
-            } else if (buildIsCausedBy(TimerTriggerCause.class, build)) {
-                // TODO make this configurable (in global config or job config?)
-                logger.println("Was triggered by timer. Unlocking system '" + expandedSystemName + "' by default.");
-
-                continueBuild = getDescriptor().unlockSystem(expandedSystemName, "system", logger);
-            } else {
-                final UserIdCause userIdCause = tryToGetUserIdCause(build);
-
-                if (userIdCause != null) {
-                    // default if blank in case anonymous user triggered job
-                    final String userId = StringUtils
-                                    .defaultIfBlank(userIdCause.getUserId(), userIdCause.getUserName());
-
-                    if (StringUtils.equals(UNLOCK_ACTION, action)) {
-                        continueBuild = getDescriptor().unlockSystem(expandedSystemName, userId, logger);
-                    } else {
-                        continueBuild = getDescriptor().lockSystem(expandedSystemName, userId, logger);
-                    }
-                } else {
-                    logger.println("(Upstream) Build was not caused by Timer or User (" + build.getCauses() + ")");
-                    continueBuild = false;
-                }
-            }
+            expandedSystemName = TokenMacro.expandAll(build, listener, systemName);
         } catch (MacroEvaluationException e) {
             logger.println("Could not expand name of system '" + systemName + "'");
+            return false;
+        }
+
+        String expandedHeaderLink;
+        try {
+            expandedHeaderLink = TokenMacro.expandAll(build, listener, headerLink);
+        } catch (MacroEvaluationException e) {
+            logger.println("Could not expand name of system '" + systemName + "'");
+            return false;
+        }
+
+        if (StringUtils.isBlank(expandedSystemName)) {
+            logger.println("Please enter a name for the system");
             continueBuild = false;
+        } else if (buildIsCausedBy(TimerTriggerCause.class, build)) {
+            // TODO make this configurable (in global config or job config?)
+            logger.println("Was triggered by timer. Unlocking system '" + expandedSystemName + "' by default.");
+
+            continueBuild = getDescriptor().unlockSystem(expandedSystemName, "system", logger);
+        } else {
+            final UserIdCause userIdCause = tryToGetUserIdCause(build);
+
+            if (userIdCause != null) {
+                // default if blank in case anonymous user triggered job
+                final String userId = StringUtils
+                                .defaultIfBlank(userIdCause.getUserId(), userIdCause.getUserName());
+
+                if (StringUtils.equals(UNLOCK_ACTION, action)) {
+                    continueBuild = getDescriptor().unlockSystem(expandedSystemName, userId, logger);
+                } else if (StringUtils.equals(LOCK_ACTION, action)) {
+                    continueBuild = getDescriptor().lockSystem(expandedSystemName, userId, logger);
+                } else if (StringUtils.equals(SET_HEADERLINK_ACTION, action)) {
+                    getDescriptor().setHeaderLink(expandedSystemName, expandedHeaderLink, logger);
+                } else {
+                    logger.println("unknown action");
+                    continueBuild = false;
+                }
+            } else {
+                logger.println("(Upstream) Build was not caused by Timer or User (" + build.getCauses() + ")");
+                continueBuild = false;
+            }
         }
 
         return continueBuild;
@@ -168,10 +186,20 @@ public class ManageTokenBuilder extends Builder {
         }
 
         public ListBoxModel doFillActionItems() {
-            ListBoxModel actionListBox = new ListBoxModel(2);
+            ListBoxModel actionListBox = new ListBoxModel(3);
             actionListBox.add("Lock System", LOCK_ACTION);
             actionListBox.add("Unlock System", UNLOCK_ACTION);
+            actionListBox.add("Set Header Link", SET_HEADERLINK_ACTION);
             return actionListBox;
+        }
+
+        private void setHeaderLink(final String systemName, final String headerLink, final PrintStream logger) {
+            SystemStatusInformation systemStatusInformation = systems.get(systemName);
+            logger.println(String.format("setting headerLink for system '%s' from '%s' to '%s' ", systemName,
+                systemStatusInformation.getHeaderLink(), headerLink));
+            systemStatusInformation.setHeaderLink(headerLink);
+//            systems.put(systemName, systemStatusInformation);
+            save();
         }
 
         private boolean lockSystem(final String systemName, final String userId, final PrintStream logger) {
@@ -215,5 +243,10 @@ public class ManageTokenBuilder extends Builder {
             return true;
         }
 
+    }
+
+
+    public String getHeaderLink() {
+        return headerLink;
     }
 }

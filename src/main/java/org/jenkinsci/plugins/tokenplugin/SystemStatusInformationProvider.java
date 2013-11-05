@@ -30,8 +30,6 @@ public class SystemStatusInformationProvider extends AbstractModelObject impleme
     // private static final Logger LOGGER =
     // Logger.getLogger(SystemInformationProvider.class.getName());
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
     // public void doUpdateCache(StaplerRequest req, StaplerResponse rsp) {
     public void doGetSystemInformation(@QueryParameter(required = true) String systemName, StaplerRequest request,
                     StaplerResponse response) throws IOException {
@@ -43,7 +41,6 @@ public class SystemStatusInformationProvider extends AbstractModelObject impleme
         final SystemStatusInformation systemInformation = systems.get(systemName);
 
         if (systemInformation != null) {
-            final String dateString = DATE_FORMAT.format(systemInformation.getChangeDate());
             final String styleSheetPath = Functions.getResourcePath() + "/css/style.css";
             final String userId = systemInformation.getUserId();
 
@@ -82,7 +79,7 @@ public class SystemStatusInformationProvider extends AbstractModelObject impleme
             String responseContent = StringUtils.replace(htmlTemplate, "$styleSheetPath", styleSheetPath);
             responseContent = StringUtils.replace(responseContent, "$statusImagePath", statusImagePath);
             responseContent = StringUtils.replace(responseContent, "$userId", userId);
-            responseContent = StringUtils.replace(responseContent, "$changeDate", dateString);
+            responseContent = StringUtils.replace(responseContent, "$changeDate", systemInformation.getChangeDateString());
 
             response.getWriter().write(responseContent);
         } else {

@@ -1,17 +1,21 @@
 package org.jenkinsci.plugins.tokenplugin;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public final class SystemStatusInformation implements Serializable {
 
     private static final long serialVersionUID = -6080786364592349305L;
 
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     public enum Status {
         UNLOCKED, LOCKED;
     }
 
     private final String userId;
+    private String headerLink;
     private final Status status;
     private final Date changeDate;
 
@@ -31,6 +35,18 @@ public final class SystemStatusInformation implements Serializable {
 
     public Date getChangeDate() {
         return changeDate;
+    }
+
+    public String getHeaderLink() {
+        return headerLink;
+    }
+
+    public void setHeaderLink(final String headerLink) {
+        this.headerLink = headerLink;
+    }
+
+    public String getChangeDateString() {
+        return DATE_FORMAT.format(changeDate);
     }
 
 }

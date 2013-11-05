@@ -1,0 +1,53 @@
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+
+
+  <j:if test="${section.name.length() > 0}">
+    <h2>${section.name}</h2>
+  </j:if>
+
+
+            <hr/>
+  <div>
+      <j:forEach var="tokenEntry" items="${section.token}">
+              <div style="float: left; width: 280px; margin: 10px;">
+          <table style="width: 280px; background-color: #EEEEEE;">
+          <tr><td>${colIndex}</td></tr>
+          <tr><td style="font-size:200%" colspan="2"><b>
+          <j:if test="${not empty(tokenEntry.value.headerLink)}">
+              <a href="${tokenEntry.value.headerLink}">${tokenEntry.key}</a>
+          </j:if>
+          <j:if test="${empty(tokenEntry.value.headerLink)}">
+              ${tokenEntry.key}
+          </j:if>
+          </b></td></tr>
+          <tr><td><b>last locked by</b></td><td>${tokenEntry.value.userId}</td></tr>
+          <tr><td><b>since</b></td><td>${tokenEntry.value.changeDateString}</td></tr>
+        <j:if test="${tokenEntry.value.status == 'UNLOCKED'}">
+          <tr><td colspan="2" align="center"><img src="/jenkins/static/c3699d20/plugin/token-plugin/images/UNLOCKED.gif" height="150px" width="100px"/></td></tr>
+          <tr><td colspan="2" align="center">
+            <form action="/jenkins/job/SCM-utility-lock-system/buildWithParameters" method="post">
+                <input type="hidden" name="systemName" value="${tokenEntry.key}"/>
+                <input type="hidden" name="action" value="Lock System"/>
+                <input type="submit" value="Lock System"/>
+                <input type="hidden" name="json" value="init"/>
+            </form>
+          </td></tr>
+        </j:if>
+        <j:if test="${tokenEntry.value.status == 'LOCKED'}">
+          <tr><td colspan="2" align="center"><img src="/jenkins/static/c3699d20/plugin/token-plugin/images/LOCKED.gif" height="150px" width="100px"/></td></tr>
+          <tr><td colspan="2" align="center">
+        <form action="/jenkins/job/SCM-utility-unlock-system/buildWithParameters" method="post">
+            <input type="hidden" name="systemName" value="${tokenEntry.key}"/>
+            <input type="hidden" name="action" value="Unlock System"/>
+            <input type="submit" value="Unlock System"/>
+            <input type="hidden" name="json" value="init"/>
+        </form>
+          </td></tr>
+        </j:if>
+
+        </table>
+              </div>
+      </j:forEach>
+  </div>
+
+</j:jelly>
