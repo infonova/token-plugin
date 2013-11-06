@@ -3,3 +3,7 @@
 
 0.2
     * added TokenStatus sectioned view and the possibility to configure a "headerlink" for the TokenStatusSection html snippet
+
+0.3
+    * keeping sorted order of tokens
+    * wording fixed: last locked by -> last changed by
