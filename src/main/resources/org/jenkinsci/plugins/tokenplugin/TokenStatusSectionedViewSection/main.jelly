@@ -23,9 +23,9 @@
           <tr><td><b>last locked by</b></td><td>${tokenEntry.value.userId}</td></tr>
           <tr><td><b>since</b></td><td>${tokenEntry.value.changeDateString}</td></tr>
         <j:if test="${tokenEntry.value.status == 'UNLOCKED'}">
-          <tr><td colspan="2" align="center"><img src="/jenkins/static/c3699d20/plugin/token-plugin/images/UNLOCKED.gif" height="150px" width="100px"/></td></tr>
+          <tr><td colspan="2" align="center"><img src="${resURL}/plugin/token-plugin/images/UNLOCKED.gif" height="150px" width="100px"/></td></tr>
           <tr><td colspan="2" align="center">
-            <form action="/jenkins/job/SCM-utility-lock-system/buildWithParameters" method="post">
+            <form action="${rootURL}/job/SCM-utility-lock-system/buildWithParameters" method="post" target="_blank">
                 <input type="hidden" name="systemName" value="${tokenEntry.key}"/>
                 <input type="hidden" name="action" value="Lock System"/>
                 <input type="submit" value="Lock System"/>
@@ -34,9 +34,9 @@
           </td></tr>
         </j:if>
         <j:if test="${tokenEntry.value.status == 'LOCKED'}">
-          <tr><td colspan="2" align="center"><img src="/jenkins/static/c3699d20/plugin/token-plugin/images/LOCKED.gif" height="150px" width="100px"/></td></tr>
+          <tr><td colspan="2" align="center"><img src="${resURL}/plugin/token-plugin/images/LOCKED.gif" height="150px" width="100px"/></td></tr>
           <tr><td colspan="2" align="center">
-        <form action="/jenkins/job/SCM-utility-unlock-system/buildWithParameters" method="post">
+        <form action="${rootURL}/job/SCM-utility-unlock-system/buildWithParameters" method="post" target="_blank">
             <input type="hidden" name="systemName" value="${tokenEntry.key}"/>
             <input type="hidden" name="action" value="Unlock System"/>
             <input type="submit" value="Unlock System"/>
