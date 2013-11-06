@@ -1,0 +1,5 @@
+0.1
+    * first release for use at A1ON
+
+0.2
+    * added TokenStatus sectioned view and the possibility to configure a "headerlink" for the TokenStatusSection html snippet
