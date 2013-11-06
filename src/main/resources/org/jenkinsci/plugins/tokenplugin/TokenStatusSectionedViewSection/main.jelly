@@ -19,7 +19,7 @@
               ${tokenEntry.key}
           </j:if>
           </b></td></tr>
-          <tr><td><b>last locked by</b></td><td>${tokenEntry.value.userId}</td></tr>
+          <tr><td><b>last changed by</b></td><td>${tokenEntry.value.userId}</td></tr>
           <tr><td><b>since</b></td><td>${tokenEntry.value.changeDateString}</td></tr>
         <j:if test="${tokenEntry.value.status == 'UNLOCKED'}">
           <tr><td colspan="2" align="center"><img src="${resURL}/plugin/token-plugin/images/UNLOCKED.gif" height="150px" width="100px"/></td></tr>
