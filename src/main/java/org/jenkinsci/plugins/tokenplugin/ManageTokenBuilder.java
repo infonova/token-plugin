@@ -19,7 +19,8 @@ import hudson.util.ListBoxModel;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -158,7 +159,7 @@ public class ManageTokenBuilder extends Builder {
             load();
 
             if (systems == null) {
-                systems = new HashMap<String, SystemStatusInformation>();
+                systems = new TreeMap<String, SystemStatusInformation>();
             }
         }
 

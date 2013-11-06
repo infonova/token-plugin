@@ -5,10 +5,11 @@ import hudson.model.Hudson;
 import hudson.plugins.sectioned_view.SectionedViewSection;
 import hudson.plugins.sectioned_view.SectionedViewSectionDescriptor;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.jenkinsci.plugins.tokenplugin.ManageTokenBuilder.DescriptorImpl;
@@ -34,11 +35,13 @@ public class TokenStatusSectionedViewSection extends SectionedViewSection {
     }
 
     @Exported
-    public Set<Entry<String,SystemStatusInformation>> getToken() {
+    public List<Entry<String,SystemStatusInformation>> getToken() {
         DescriptorImpl descriptor = Hudson.getInstance().getDescriptorByType(ManageTokenBuilder.DescriptorImpl.class);
 
-        Set<Map.Entry<String,SystemStatusInformation>> filteredTokens = new HashSet<Entry<String, SystemStatusInformation>>();
-        for (Map.Entry<String,SystemStatusInformation> entry : descriptor.getSystems().entrySet()) {
+        List<Map.Entry<String,SystemStatusInformation>> filteredTokens = new ArrayList<Entry<String, SystemStatusInformation>>();
+        Map<String, SystemStatusInformation> systems = new TreeMap<String, SystemStatusInformation>();
+        systems.putAll(descriptor.getSystems());
+        for (Map.Entry<String,SystemStatusInformation> entry : systems.entrySet()) {
             if (Pattern.matches(getIncludeRegex(), (CharSequence)entry.getKey())) {
                 filteredTokens.add(entry);
             }

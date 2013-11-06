@@ -11,7 +11,6 @@
       <j:forEach var="tokenEntry" items="${section.token}">
               <div style="float: left; width: 280px; margin: 10px;">
           <table style="width: 280px; background-color: #EEEEEE;">
-          <tr><td>${colIndex}</td></tr>
           <tr><td style="font-size:200%" colspan="2"><b>
           <j:if test="${not empty(tokenEntry.value.headerLink)}">
               <a href="${tokenEntry.value.headerLink}">${tokenEntry.key}</a>
