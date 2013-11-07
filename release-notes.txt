@@ -7,3 +7,6 @@
 0.3
     * keeping sorted order of tokens
     * wording fixed: last locked by -> last changed by
+
+0.4
+    * fixed: overwriting headerLink in case of lock/unlock
