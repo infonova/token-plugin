@@ -14,14 +14,21 @@ public final class SystemStatusInformation implements Serializable {
         UNLOCKED, LOCKED;
     }
 
-    private final String userId;
+    private String userId;
     private String headerLink;
-    private final Status status;
-    private final Date changeDate;
+    private Status status;
+    private Date changeDate;
 
     public SystemStatusInformation(final String userId, final Status status) {
         this.status = status;
         this.userId = userId;
+        this.changeDate = new Date();
+    }
+
+    public SystemStatusInformation(SystemStatusInformation systemInformation) {
+        this.userId = systemInformation.getUserId();
+        this.headerLink = systemInformation.getHeaderLink();
+        this.status = systemInformation.getStatus();
         this.changeDate = new Date();
     }
 
@@ -47,6 +54,14 @@ public final class SystemStatusInformation implements Serializable {
 
     public String getChangeDateString() {
         return DATE_FORMAT.format(changeDate);
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
 }

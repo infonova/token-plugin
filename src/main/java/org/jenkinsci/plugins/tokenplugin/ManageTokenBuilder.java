@@ -19,10 +19,9 @@ import hudson.util.ListBoxModel;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.TreeMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -205,26 +204,41 @@ public class ManageTokenBuilder extends Builder {
 
         private boolean lockSystem(final String systemName, final String userId, final PrintStream logger) {
             logger.println("User '" + userId + "' is trying to lock system '" + systemName + "'");
-            boolean continueBuild = true;
 
             final SystemStatusInformation systemInformation = systems.get(systemName);
 
-            if (systemInformation == null || Status.UNLOCKED.equals(systemInformation.getStatus())) {
-                systems.put(systemName, new SystemStatusInformation(userId, Status.LOCKED));
-                save();
+            if (systemLockable(systemInformation)) {
+                updateLockStatus(systemInformation, userId, Status.LOCKED);
                 logger.println("System '" + systemName + "' locked");
             } else {
                 final String lockeeUserId = systemInformation.getUserId();
-                logger.println("System '" + systemName + "' was locked by '" + lockeeUserId + "'");
+                logger.println("System '" + systemName + "' was already locked by '" + lockeeUserId + "'");
 
                 if (!StringUtils.equals(userId, lockeeUserId)) {
                     logger.println("Lockee '" + lockeeUserId + "' is not current user '" + userId
                                     + "'. Aborting build...");
-                    continueBuild = false;
+                    return false;
                 }
             }
+            return true;
+        }
 
-            return continueBuild;
+        private SystemStatusInformation updateLockStatus(SystemStatusInformation systemInformation, String userId, Status status) {
+            SystemStatusInformation updatedSystemInfo;
+            if (systemInformation == null) {
+                updatedSystemInfo = new SystemStatusInformation(systemInformation);
+                updatedSystemInfo.setUserId(userId);
+                updatedSystemInfo.setStatus(status);
+            } else {
+                updatedSystemInfo = new SystemStatusInformation(userId, status);
+            }
+            save();
+
+            return updatedSystemInfo;
+        }
+
+        private boolean systemLockable(final SystemStatusInformation systemInformation) {
+            return (systemInformation == null) || Status.UNLOCKED.equals(systemInformation.getStatus());
         }
 
         private boolean unlockSystem(final String systemName, final String userId, final PrintStream logger) {
@@ -232,7 +246,7 @@ public class ManageTokenBuilder extends Builder {
 
             final SystemStatusInformation systemInformation = systems.get(systemName);
 
-            if (systemInformation == null || Status.UNLOCKED.equals(systemInformation.getStatus())) {
+            if (systemLockable(systemInformation)) {
                 logger.println("System '" + systemName + "' is not locked");
             } else {
                 systems.put(systemName, new SystemStatusInformation(userId, Status.UNLOCKED));
