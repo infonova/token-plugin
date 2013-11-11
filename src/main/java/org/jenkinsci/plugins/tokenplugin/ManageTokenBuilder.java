@@ -208,7 +208,7 @@ public class ManageTokenBuilder extends Builder {
             final SystemStatusInformation systemInformation = systems.get(systemName);
 
             if (systemLockable(systemInformation)) {
-                updateLockStatus(systemInformation, userId, Status.LOCKED);
+                updateLockStatus(systemName, systemInformation, userId, Status.LOCKED);
                 logger.println("System '" + systemName + "' locked");
             } else {
                 final String lockeeUserId = systemInformation.getUserId();
@@ -223,7 +223,7 @@ public class ManageTokenBuilder extends Builder {
             return true;
         }
 
-        private SystemStatusInformation updateLockStatus(SystemStatusInformation systemInformation, String userId, Status status) {
+        private void updateLockStatus(String systemName, SystemStatusInformation systemInformation, String userId, Status status) {
             SystemStatusInformation updatedSystemInfo;
             if (systemInformation == null) {
                 updatedSystemInfo = new SystemStatusInformation(systemInformation);
@@ -232,9 +232,8 @@ public class ManageTokenBuilder extends Builder {
             } else {
                 updatedSystemInfo = new SystemStatusInformation(userId, status);
             }
+            systems.put(systemName, updatedSystemInfo);
             save();
-
-            return updatedSystemInfo;
         }
 
         private boolean systemLockable(final SystemStatusInformation systemInformation) {
