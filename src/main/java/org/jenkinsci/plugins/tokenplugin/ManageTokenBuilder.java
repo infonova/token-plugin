@@ -207,7 +207,7 @@ public class ManageTokenBuilder extends Builder {
 
             final SystemStatusInformation systemInformation = systems.get(systemName);
 
-            if (systemLockable(systemInformation)) {
+            if (systemUnlockedOrNew(systemInformation)) {
                 updateLockStatus(systemName, systemInformation, userId, Status.LOCKED);
                 logger.println("System '" + systemName + "' locked");
             } else {
@@ -225,7 +225,7 @@ public class ManageTokenBuilder extends Builder {
 
         private void updateLockStatus(String systemName, SystemStatusInformation systemInformation, String userId, Status status) {
             SystemStatusInformation updatedSystemInfo;
-            if (systemInformation == null) {
+            if (systemInformation != null) {
                 updatedSystemInfo = new SystemStatusInformation(systemInformation);
                 updatedSystemInfo.setUserId(userId);
                 updatedSystemInfo.setStatus(status);
@@ -236,7 +236,7 @@ public class ManageTokenBuilder extends Builder {
             save();
         }
 
-        private boolean systemLockable(final SystemStatusInformation systemInformation) {
+        private boolean systemUnlockedOrNew(final SystemStatusInformation systemInformation) {
             return (systemInformation == null) || Status.UNLOCKED.equals(systemInformation.getStatus());
         }
 
@@ -245,11 +245,10 @@ public class ManageTokenBuilder extends Builder {
 
             final SystemStatusInformation systemInformation = systems.get(systemName);
 
-            if (systemLockable(systemInformation)) {
+            if (systemUnlockedOrNew(systemInformation)) {
                 logger.println("System '" + systemName + "' is not locked");
             } else {
-                systems.put(systemName, new SystemStatusInformation(userId, Status.UNLOCKED));
-                save();
+                updateLockStatus(systemName, systemInformation, userId, Status.UNLOCKED);
                 logger.println("System '" + systemName + "' was unlocked by user '" + userId + "'");
             }
 
