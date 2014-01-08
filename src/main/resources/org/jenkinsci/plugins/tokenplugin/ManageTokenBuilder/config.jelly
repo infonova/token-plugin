@@ -2,6 +2,9 @@
   <f:entry title="${%Action}" field="action">
     <f:select/>
   </f:entry>
+  <f:entry title="${%force execution of action if started by timer}" field="forceAction">
+    <f:checkbox/>
+  </f:entry>
   <f:entry title="${%Name of the System}" field="systemName">
     <f:textbox/>
   </f:entry>

@@ -46,12 +46,14 @@ public class ManageTokenBuilder extends Builder {
     private final String systemName;
     private final String headerLink;
     private final String action;
+    private final boolean forceAction;
 
     @DataBoundConstructor
-    public ManageTokenBuilder(String systemName, String action, String headerLink) {
+    public ManageTokenBuilder(String systemName, String action, String headerLink, boolean forceAction) {
         this.systemName = systemName;
         this.action = action;
         this.headerLink = headerLink;
+        this.forceAction = forceAction;
     }
 
     public String getSystemName() {
@@ -60,6 +62,10 @@ public class ManageTokenBuilder extends Builder {
 
     public String getAction() {
         return action;
+    }
+
+    public boolean getForceAction() {
+	return forceAction;
     }
 
     private boolean buildIsCausedBy(Class<? extends Cause> clazz, Run<?, ?> build) {
@@ -112,23 +118,26 @@ public class ManageTokenBuilder extends Builder {
         if (StringUtils.isBlank(expandedSystemName)) {
             logger.println("Please enter a name for the system");
             continueBuild = false;
-        } else if (buildIsCausedBy(TimerTriggerCause.class, build)) {
-            // TODO make this configurable (in global config or job config?)
-            logger.println("Was triggered by timer. Unlocking system '" + expandedSystemName + "' by default.");
-
+        } else if (buildIsCausedBy(TimerTriggerCause.class, build) && !forceAction) {
+            logger.println("Was triggered by timer and job is not configured to force action. Unlocking system '" + expandedSystemName + "' by default.");
             continueBuild = getDescriptor().unlockSystem(expandedSystemName, "system", logger);
         } else {
             final UserIdCause userIdCause = tryToGetUserIdCause(build);
+	    String userId = "";
 
-            if (userIdCause != null) {
+	    if (userIdCause != null) {
                 // default if blank in case anonymous user triggered job
-                final String userId = StringUtils
-                                .defaultIfBlank(userIdCause.getUserId(), userIdCause.getUserName());
+               userId = StringUtils.defaultIfBlank(userIdCause.getUserId(), userIdCause.getUserName());
+	    } else if (buildIsCausedBy(TimerTriggerCause.class, build) && forceAction) {
+		userId = "timer";
+		logger.println("Was triggered by timer and job is configured to force action."); 
+	    }
 
+	    if (!userId.equals("")) {
                 if (StringUtils.equals(UNLOCK_ACTION, action)) {
                     continueBuild = getDescriptor().unlockSystem(expandedSystemName, userId, logger);
                 } else if (StringUtils.equals(LOCK_ACTION, action)) {
-                    continueBuild = getDescriptor().lockSystem(expandedSystemName, userId, logger);
+                    continueBuild = getDescriptor().lockSystem(expandedSystemName, userId, forceAction, logger);
                 } else if (StringUtils.equals(SET_HEADERLINK_ACTION, action)) {
                     getDescriptor().setHeaderLink(expandedSystemName, expandedHeaderLink, logger);
                 } else {
@@ -202,12 +211,12 @@ public class ManageTokenBuilder extends Builder {
             save();
         }
 
-        private boolean lockSystem(final String systemName, final String userId, final PrintStream logger) {
+        private boolean lockSystem(final String systemName, final String userId, final boolean forceAction, final PrintStream logger) {
             logger.println("User '" + userId + "' is trying to lock system '" + systemName + "'");
 
             final SystemStatusInformation systemInformation = systems.get(systemName);
 
-            if (systemUnlockedOrNew(systemInformation)) {
+            if (systemUnlockedOrNew(systemInformation) || forceAction) {
                 updateLockStatus(systemName, systemInformation, userId, Status.LOCKED);
                 logger.println("System '" + systemName + "' locked");
             } else {
