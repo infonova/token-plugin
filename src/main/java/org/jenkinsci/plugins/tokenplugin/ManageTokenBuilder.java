@@ -123,17 +123,17 @@ public class ManageTokenBuilder extends Builder {
             continueBuild = getDescriptor().unlockSystem(expandedSystemName, "system", logger);
         } else {
             final UserIdCause userIdCause = tryToGetUserIdCause(build);
-	    String userId = "";
+            String userId = null;
 
-	    if (userIdCause != null) {
+    	    if (userIdCause != null) {
                 // default if blank in case anonymous user triggered job
-               userId = StringUtils.defaultIfBlank(userIdCause.getUserId(), userIdCause.getUserName());
-	    } else if (buildIsCausedBy(TimerTriggerCause.class, build) && forceAction) {
-		userId = "timer";
-		logger.println("Was triggered by timer and job is configured to force action."); 
-	    }
-
-	    if (!userId.equals("")) {
+	            userId = StringUtils.defaultIfBlank(userIdCause.getUserId(), userIdCause.getUserName());
+    	    } else if (buildIsCausedBy(TimerTriggerCause.class, build) && forceAction) {
+    	        userId = "timer";
+        		logger.println("Was triggered by timer and job is configured to force action."); 
+    	    }
+    
+    	    if (!StringUtils.isEmpty(userId)) {
                 if (StringUtils.equals(UNLOCK_ACTION, action)) {
                     continueBuild = getDescriptor().unlockSystem(expandedSystemName, userId, logger);
                 } else if (StringUtils.equals(LOCK_ACTION, action)) {
