@@ -40,6 +40,7 @@ public class ManageTokenBuilder extends Builder {
     private static final String UNLOCK_ACTION = "unlock";
     private static final String LOCK_ACTION = "lock";
     private static final String SET_HEADERLINK_ACTION = "setHeaderLink";
+    private static final String TIMER_USERID = "timer";
 
     private static final String SYSTEM_REGEX = "^[a-zA-Z0-9_\\$\\{\\}]*$";
 
@@ -129,7 +130,7 @@ public class ManageTokenBuilder extends Builder {
                 // default if blank in case anonymous user triggered job
 	            userId = StringUtils.defaultIfBlank(userIdCause.getUserId(), userIdCause.getUserName());
     	    } else if (buildIsCausedBy(TimerTriggerCause.class, build) && forceAction) {
-    	        userId = "timer";
+    	        userId = TIMER_USERID;
         		logger.println("Was triggered by timer and job is configured to force action."); 
     	    }
     
@@ -215,8 +216,8 @@ public class ManageTokenBuilder extends Builder {
             logger.println("User '" + userId + "' is trying to lock system '" + systemName + "'");
 
             final SystemStatusInformation systemInformation = systems.get(systemName);
-
-            if (systemUnlockedOrNew(systemInformation) || forceAction) {
+            
+            if (systemUnlockedOrNew(systemInformation) || jobStartedByTimerAndForceActionIsTrue(userId, forceAction)) {
                 updateLockStatus(systemName, systemInformation, userId, Status.LOCKED);
                 logger.println("System '" + systemName + "' locked");
             } else {
@@ -247,6 +248,10 @@ public class ManageTokenBuilder extends Builder {
 
         private boolean systemUnlockedOrNew(final SystemStatusInformation systemInformation) {
             return (systemInformation == null) || Status.UNLOCKED.equals(systemInformation.getStatus());
+        }
+        
+        private boolean jobStartedByTimerAndForceActionIsTrue(final String userId, final boolean forceAction) {
+            return (TIMER_USERID.equals(userId) && forceAction);
         }
 
         private boolean unlockSystem(final String systemName, final String userId, final PrintStream logger) {
