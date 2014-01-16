@@ -40,6 +40,8 @@ public class ManageTokenBuilder extends Builder {
     private static final String UNLOCK_ACTION = "unlock";
     private static final String LOCK_ACTION = "lock";
     private static final String SET_HEADERLINK_ACTION = "setHeaderLink";
+    private static final String LOCK_AND_SET_HEADERLINK_ACTION = "lockAndSetHeaderLink";
+    private static final String UNLOCK_AND_RESET_HEADERLINK_ACTION = "unlockAndResetHeaderLink";    
     private static final String TIMER_USERID = "timer";
 
     private static final String SYSTEM_REGEX = "^[a-zA-Z0-9_\\$\\{\\}]*$";
@@ -141,6 +143,12 @@ public class ManageTokenBuilder extends Builder {
                     continueBuild = getDescriptor().lockSystem(expandedSystemName, userId, forceAction, logger);
                 } else if (StringUtils.equals(SET_HEADERLINK_ACTION, action)) {
                     getDescriptor().setHeaderLink(expandedSystemName, expandedHeaderLink, logger);
+                } else if (StringUtils.equals(LOCK_AND_SET_HEADERLINK_ACTION, action)) {
+                    continueBuild = getDescriptor().lockSystem(expandedSystemName, userId, forceAction, logger);
+                    getDescriptor().setHeaderLink(expandedSystemName, expandedHeaderLink, logger);                    
+                } else if (StringUtils.equals(UNLOCK_AND_RESET_HEADERLINK_ACTION, action)) {
+                    continueBuild = getDescriptor().unlockSystem(expandedSystemName, userId, logger);
+                    getDescriptor().setHeaderLink(expandedSystemName, null, logger);
                 } else {
                     logger.println("unknown action");
                     continueBuild = false;
@@ -200,6 +208,8 @@ public class ManageTokenBuilder extends Builder {
             actionListBox.add("Lock System", LOCK_ACTION);
             actionListBox.add("Unlock System", UNLOCK_ACTION);
             actionListBox.add("Set Header Link", SET_HEADERLINK_ACTION);
+            actionListBox.add("Lock System and Set Header Link", LOCK_AND_SET_HEADERLINK_ACTION);
+            actionListBox.add("Unlock System and Reset Header Link", UNLOCK_AND_RESET_HEADERLINK_ACTION);            
             return actionListBox;
         }
 
