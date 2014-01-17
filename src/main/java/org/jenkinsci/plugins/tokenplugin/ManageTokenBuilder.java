@@ -83,19 +83,23 @@ public class ManageTokenBuilder extends Builder {
         return false;
     }
 
-    private UserIdCause tryToGetUserIdCause(AbstractBuild<?,?> build) {
+ private Run<?,?> getRootBuild(Run<?,?> build) {
+		Run<?,?> result;
         if (buildIsCausedBy(UpstreamCause.class, build)) {
             final UpstreamCause upstreamCause = build.getCause(UpstreamCause.class);
             final Run<?, ?> upstreamBuild = upstreamCause.getUpstreamRun();
 
-            if (buildIsCausedBy(UserIdCause.class, upstreamBuild)) {
-                return upstreamBuild.getCause(UserIdCause.class);
+            if (buildIsCausedBy(UpstreamCause.class, upstreamBuild)) {
+                result = getRootBuild(upstreamBuild);
+            } else {
+            	result = upstreamBuild;
             }
+        } else {
+        	result = build;
         }
-
-        return build.getCause(UserIdCause.class);
+        return result;
     }
-
+        
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
                     throws InterruptedException, IOException {
@@ -118,20 +122,22 @@ public class ManageTokenBuilder extends Builder {
             return false;
         }
 
+		final Run<?, ?> rootBuild = getRootBuild(build);
+
         if (StringUtils.isBlank(expandedSystemName)) {
             logger.println("Please enter a name for the system");
             continueBuild = false;
-        } else if (buildIsCausedBy(TimerTriggerCause.class, build) && !forceAction) {
+        } else if (buildIsCausedBy(TimerTriggerCause.class, rootBuild) && !forceAction) {
             logger.println("Was triggered by timer and job is not configured to force action. Unlocking system '" + expandedSystemName + "' by default.");
             continueBuild = getDescriptor().unlockSystem(expandedSystemName, "system", logger);
         } else {
-            final UserIdCause userIdCause = tryToGetUserIdCause(build);
+            final UserIdCause userIdCause = rootBuild.getCause(UserIdCause.class);
             String userId = null;
 
     	    if (userIdCause != null) {
                 // default if blank in case anonymous user triggered job
 	            userId = StringUtils.defaultIfBlank(userIdCause.getUserId(), userIdCause.getUserName());
-    	    } else if (buildIsCausedBy(TimerTriggerCause.class, build) && forceAction) {
+    	    } else if (buildIsCausedBy(TimerTriggerCause.class, rootBuild) && forceAction) {
     	        userId = TIMER_USERID;
         		logger.println("Was triggered by timer and job is configured to force action."); 
     	    }
@@ -154,7 +160,7 @@ public class ManageTokenBuilder extends Builder {
                     continueBuild = false;
                 }
             } else {
-                logger.println("(Upstream) Build was not caused by Timer or User (" + build.getCauses() + ")");
+                logger.println("(Upstream) Build was not caused by Timer or User. Build-Cause(s): " + rootBuild.getCauses());
                 continueBuild = false;
             }
         }
