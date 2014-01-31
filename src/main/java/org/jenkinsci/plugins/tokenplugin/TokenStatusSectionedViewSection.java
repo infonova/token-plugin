@@ -36,13 +36,13 @@ public class TokenStatusSectionedViewSection extends SectionedViewSection {
 
     @Exported
     public List<Entry<String,SystemStatusInformation>> getToken() {
-        DescriptorImpl descriptor = Hudson.getInstance().getDescriptorByType(ManageTokenBuilder.DescriptorImpl.class);
+        Hudson.getInstance().getDescriptorByType(ManageTokenBuilder.DescriptorImpl.class);
 
         List<Map.Entry<String,SystemStatusInformation>> filteredTokens = new ArrayList<Entry<String, SystemStatusInformation>>();
         Map<String, SystemStatusInformation> systems = new TreeMap<String, SystemStatusInformation>();
-        systems.putAll(descriptor.getSystems());
+        systems.putAll(TokenManager.getSystems());
         for (Map.Entry<String,SystemStatusInformation> entry : systems.entrySet()) {
-            if (Pattern.matches(getIncludeRegex(), (CharSequence)entry.getKey())) {
+            if (Pattern.matches(getIncludeRegex(), entry.getKey())) {
                 filteredTokens.add(entry);
             }
         }

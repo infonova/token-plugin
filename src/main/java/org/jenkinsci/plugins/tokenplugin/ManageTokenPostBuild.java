@@ -7,7 +7,9 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.FreeStyleProject;
 import hudson.tasks.BuildStepDescriptor;
-import hudson.tasks.Builder;
+import hudson.tasks.BuildStepMonitor;
+import hudson.tasks.Publisher;
+import hudson.tasks.Recorder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 
@@ -18,11 +20,8 @@ import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
-/**
- *
- * @author Stefan Eder
- */
-public class ManageTokenBuilder extends Builder {
+
+public class ManageTokenPostBuild extends Recorder {
 
     private static final String UNLOCK_ACTION = "unlock";
     private static final String LOCK_ACTION = "lock";
@@ -37,41 +36,28 @@ public class ManageTokenBuilder extends Builder {
     private final boolean forceAction;
 
     @DataBoundConstructor
-    public ManageTokenBuilder(String systemName, String action, String headerLink, boolean forceAction) {
+    public ManageTokenPostBuild(String systemName, String headerLink, String action, boolean forceAction) {
+        super();
         this.systemName = systemName;
-        this.action = action;
         this.headerLink = headerLink;
+        this.action = action;
         this.forceAction = forceAction;
     }
 
-    public String getSystemName() {
-        return systemName;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public boolean getForceAction() {
-        return forceAction;
+    @Override
+    public BuildStepMonitor getRequiredMonitorService() {
+        return BuildStepMonitor.NONE;
     }
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
-        listener.getLogger();
 
         return TokenManager.manageToken(build, listener, getDescriptor(), systemName, headerLink, action, forceAction);
-
-    }
-
-    @Override
-    public DescriptorImpl getDescriptor() {
-        return (DescriptorImpl) super.getDescriptor();
     }
 
     @Extension
-    public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
+    public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
 
         public DescriptorImpl() {
@@ -108,8 +94,29 @@ public class ManageTokenBuilder extends Builder {
         }
 
     }
+    public String getSystemName() {
+        return systemName;
+    }
+
 
     public String getHeaderLink() {
         return headerLink;
     }
+
+
+    public String getAction() {
+        return action;
+    }
+
+
+    public boolean isForceAction() {
+        return forceAction;
+    }
+
+    @Override
+    public DescriptorImpl getDescriptor() {
+        return (DescriptorImpl) super.getDescriptor();
+    }
+
+
 }

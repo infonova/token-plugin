@@ -11,13 +11,11 @@ import hudson.model.Hudson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.tokenplugin.SystemStatusInformation.Status;
-import org.jenkinsci.plugins.tokenplugin.ManageTokenBuilder.DescriptorImpl;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -32,12 +30,10 @@ public class SystemStatusInformationProvider extends AbstractModelObject impleme
 
     // public void doUpdateCache(StaplerRequest req, StaplerResponse rsp) {
     public void doGetSystemInformation(@QueryParameter(required = true) String systemName, StaplerRequest request,
-                    StaplerResponse response) throws IOException {
+            StaplerResponse response) throws IOException {
         // DescriptorImpl descriptor = (DescriptorImpl)
         // Hudson.getInstance().getDescriptor(ManageTokenBuilder.class);
-        DescriptorImpl descriptor = Hudson.getInstance().getDescriptorByType(DescriptorImpl.class);
-
-        final Map<String, SystemStatusInformation> systems = descriptor.getSystems();
+        final Map<String, SystemStatusInformation> systems = TokenManager.getSystems();
         final SystemStatusInformation systemInformation = systems.get(systemName);
 
         if (systemInformation != null) {
@@ -47,7 +43,7 @@ public class SystemStatusInformationProvider extends AbstractModelObject impleme
             String statusImagePath = null;
             if (Status.LOCKED.equals(systemInformation.getStatus())) {
                 final FilePath userContentImage = Hudson.getInstance().getRootPath()
-                                .child("userContent/token-images/" + userId + ".gif");
+                        .child("userContent/token-images/" + userId + ".gif");
                 try {
                     if (userContentImage.exists() && !userContentImage.isDirectory()) {
                         statusImagePath = "/userContent/token-images/" + userId + ".gif";
@@ -59,7 +55,7 @@ public class SystemStatusInformationProvider extends AbstractModelObject impleme
 
             if (StringUtils.isBlank(statusImagePath)) {
                 statusImagePath = Functions.getResourcePath() + //
-                                "/plugin/token-plugin/images/" + systemInformation.getStatus() + ".gif";
+                        "/plugin/token-plugin/images/" + systemInformation.getStatus() + ".gif";
             }
 
             // FilePath file =
