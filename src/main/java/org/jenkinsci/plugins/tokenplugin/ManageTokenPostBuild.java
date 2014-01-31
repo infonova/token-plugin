@@ -53,7 +53,7 @@ public class ManageTokenPostBuild extends Recorder {
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
 
-        return TokenManager.manageToken(build, listener, getDescriptor(), systemName, headerLink, action, forceAction);
+        return TokenManager.getInstance().manageToken(build, listener, systemName, headerLink, action, forceAction);
     }
 
     @Extension

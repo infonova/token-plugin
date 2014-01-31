@@ -61,7 +61,7 @@ public class ManageTokenBuilder extends Builder {
             throws InterruptedException, IOException {
         listener.getLogger();
 
-        return TokenManager.manageToken(build, listener, getDescriptor(), systemName, headerLink, action, forceAction);
+        return TokenManager.getInstance().manageToken(build, listener, systemName, headerLink, action, forceAction);
 
     }
 

@@ -33,7 +33,7 @@ public class SystemStatusInformationProvider extends AbstractModelObject impleme
             StaplerResponse response) throws IOException {
         // DescriptorImpl descriptor = (DescriptorImpl)
         // Hudson.getInstance().getDescriptor(ManageTokenBuilder.class);
-        final Map<String, SystemStatusInformation> systems = TokenManager.getSystems();
+        final Map<String, SystemStatusInformation> systems = TokenManager.getInstance().getSystems();
         final SystemStatusInformation systemInformation = systems.get(systemName);
 
         if (systemInformation != null) {

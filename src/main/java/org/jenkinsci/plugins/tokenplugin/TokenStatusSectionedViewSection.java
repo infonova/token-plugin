@@ -12,7 +12,6 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-import org.jenkinsci.plugins.tokenplugin.ManageTokenBuilder.DescriptorImpl;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.export.Exported;
 
@@ -40,7 +39,7 @@ public class TokenStatusSectionedViewSection extends SectionedViewSection {
 
         List<Map.Entry<String,SystemStatusInformation>> filteredTokens = new ArrayList<Entry<String, SystemStatusInformation>>();
         Map<String, SystemStatusInformation> systems = new TreeMap<String, SystemStatusInformation>();
-        systems.putAll(TokenManager.getSystems());
+        systems.putAll(TokenManager.getInstance().getSystems());
         for (Map.Entry<String,SystemStatusInformation> entry : systems.entrySet()) {
             if (Pattern.matches(getIncludeRegex(), entry.getKey())) {
                 filteredTokens.add(entry);

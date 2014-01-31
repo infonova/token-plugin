@@ -1,13 +1,13 @@
 package org.jenkinsci.plugins.tokenplugin;
 
+import hudson.Extension;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 import hudson.model.Cause;
 import hudson.model.Cause.UpstreamCause;
 import hudson.model.Cause.UserIdCause;
-import hudson.model.Descriptor;
+import hudson.model.Hudson;
 import hudson.model.Run;
-import hudson.tasks.BuildStep;
 import hudson.triggers.TimerTrigger.TimerTriggerCause;
 
 import java.io.IOException;
@@ -17,13 +17,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import jenkins.model.GlobalConfiguration;
+
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.jenkinsci.plugins.tokenplugin.SystemStatusInformation.Status;
 
-
-public class TokenManager {
+@Extension
+public class TokenManager extends GlobalConfiguration {
 
     private static final String UNLOCK_ACTION = "unlock";
     private static final String LOCK_ACTION = "lock";
@@ -32,22 +34,22 @@ public class TokenManager {
     private static final String UNLOCK_AND_RESET_HEADERLINK_ACTION = "unlockAndResetHeaderLink";
     private static final String TIMER_USERID = "timer";
 
-    private static class Systems {
+    private Map<String, SystemStatusInformation> systems;
 
-        private static Map<String, SystemStatusInformation> systems;
+    public TokenManager() {
+        load();
 
-        public static Map<String, SystemStatusInformation> getInstance() {
-
-            if (systems == null) {
-                systems = new TreeMap<String, SystemStatusInformation>();
-            }
-            return systems;
+        if (systems == null) {
+            systems = new TreeMap<String, SystemStatusInformation>();
         }
     }
 
-    public static boolean manageToken(AbstractBuild<?, ?> build, TaskListener listener,
-            Descriptor<? extends BuildStep> descriptor, String systemName, String headerLink, String action,
-            boolean forceAction) throws IOException, InterruptedException {
+    public static TokenManager getInstance() {
+        return Hudson.getInstance().getDescriptorByType(TokenManager.class);
+    }
+
+    public boolean manageToken(AbstractBuild<?, ?> build, TaskListener listener,
+            String systemName, String headerLink, String action, boolean forceAction) throws IOException, InterruptedException {
 
         final PrintStream logger = listener.getLogger();
         boolean continueBuild = true;
@@ -75,7 +77,7 @@ public class TokenManager {
             continueBuild = false;
         } else if (buildIsCausedBy(TimerTriggerCause.class, rootBuild) && !forceAction) {
             logger.println("Was triggered by timer and job is not configured to force action. Unlocking system '" + expandedSystemName + "' by default.");
-            continueBuild = unlockSystem(expandedSystemName, "system", logger, descriptor);
+            continueBuild = unlockSystem(expandedSystemName, "system", logger);
         } else {
             final UserIdCause userIdCause = rootBuild.getCause(UserIdCause.class);
             String userId = null;
@@ -90,17 +92,17 @@ public class TokenManager {
 
             if (!StringUtils.isEmpty(userId)) {
                 if (StringUtils.equals(UNLOCK_ACTION, action)) {
-                    continueBuild = unlockSystem(expandedSystemName, userId, logger, descriptor);
+                    continueBuild = unlockSystem(expandedSystemName, userId, logger);
                 } else if (StringUtils.equals(LOCK_ACTION, action)) {
-                    continueBuild = lockSystem(expandedSystemName, userId, forceAction, logger, descriptor);
+                    continueBuild = lockSystem(expandedSystemName, userId, forceAction, logger);
                 } else if (StringUtils.equals(SET_HEADERLINK_ACTION, action)) {
-                    setHeaderLink(expandedSystemName, expandedHeaderLink, logger, descriptor);
+                    setHeaderLink(expandedSystemName, expandedHeaderLink, logger);
                 } else if (StringUtils.equals(LOCK_AND_SET_HEADERLINK_ACTION, action)) {
-                    continueBuild = lockSystem(expandedSystemName, userId, forceAction, logger, descriptor);
-                    setHeaderLink(expandedSystemName, expandedHeaderLink, logger, descriptor);
+                    continueBuild = lockSystem(expandedSystemName, userId, forceAction, logger);
+                    setHeaderLink(expandedSystemName, expandedHeaderLink, logger);
                 } else if (StringUtils.equals(UNLOCK_AND_RESET_HEADERLINK_ACTION, action)) {
-                    continueBuild = unlockSystem(expandedSystemName, userId, logger, descriptor);
-                    setHeaderLink(expandedSystemName, null, logger, descriptor);
+                    continueBuild = unlockSystem(expandedSystemName, userId, logger);
+                    setHeaderLink(expandedSystemName, null, logger);
                 } else {
                     logger.println("unknown action");
                     continueBuild = false;
@@ -114,13 +116,13 @@ public class TokenManager {
         return continueBuild;
     }
 
-    private static boolean lockSystem(final String systemName, final String userId, final boolean forceAction, final PrintStream logger, Descriptor<? extends BuildStep> descriptor) {
+    private boolean lockSystem(final String systemName, final String userId, final boolean forceAction, final PrintStream logger) {
         logger.println("User '" + userId + "' is trying to lock system '" + systemName + "'");
 
-        final SystemStatusInformation systemInformation = Systems.getInstance().get(systemName);
+        final SystemStatusInformation systemInformation = systems.get(systemName);
 
         if (systemUnlockedOrNew(systemInformation) || jobStartedByTimerAndForceActionIsTrue(userId, forceAction)) {
-            updateLockStatus(systemName, systemInformation, userId, Status.LOCKED, descriptor);
+            updateLockStatus(systemName, systemInformation, userId, Status.LOCKED);
             logger.println("System '" + systemName + "' locked");
         } else {
             final String lockeeUserId = systemInformation.getUserId();
@@ -135,16 +137,16 @@ public class TokenManager {
         return true;
     }
 
-    private static void setHeaderLink(final String systemName, final String headerLink, final PrintStream logger, Descriptor<? extends BuildStep> descriptor) {
-        SystemStatusInformation systemStatusInformation = Systems.getInstance().get(systemName);
+    private void setHeaderLink(final String systemName, final String headerLink, final PrintStream logger) {
+        SystemStatusInformation systemStatusInformation = systems.get(systemName);
         logger.println(String.format("setting headerLink for system '%s' from '%s' to '%s' ", systemName,
             systemStatusInformation.getHeaderLink(), headerLink));
         systemStatusInformation.setHeaderLink(headerLink);
-        //        Systems.getInstance().put(systemName, systemStatusInformation);
-        descriptor.save();
+        //        systems.put(systemName, systemStatusInformation);
+        save();
     }
 
-    private static Run<?,?> getRootBuild(Run<?,?> build) {
+    private Run<?,?> getRootBuild(Run<?,?> build) {
         Run<?,?> result;
         if (buildIsCausedBy(UpstreamCause.class, build)) {
             final UpstreamCause upstreamCause = build.getCause(UpstreamCause.class);
@@ -161,7 +163,7 @@ public class TokenManager {
         return result;
     }
 
-    private static void updateLockStatus(String systemName, SystemStatusInformation systemInformation, String userId, Status status, Descriptor<? extends BuildStep> descriptor) {
+    private void updateLockStatus(String systemName, SystemStatusInformation systemInformation, String userId, Status status) {
         SystemStatusInformation updatedSystemInfo;
         if (systemInformation != null) {
             updatedSystemInfo = new SystemStatusInformation(systemInformation);
@@ -170,27 +172,27 @@ public class TokenManager {
         } else {
             updatedSystemInfo = new SystemStatusInformation(userId, status);
         }
-        Systems.getInstance().put(systemName, updatedSystemInfo);
-        descriptor.save();
+        systems.put(systemName, updatedSystemInfo);
+        save();
     }
 
-    private static boolean systemUnlockedOrNew(final SystemStatusInformation systemInformation) {
+    private boolean systemUnlockedOrNew(final SystemStatusInformation systemInformation) {
         return (systemInformation == null) || Status.UNLOCKED.equals(systemInformation.getStatus());
     }
 
-    private static boolean jobStartedByTimerAndForceActionIsTrue(final String userId, final boolean forceAction) {
+    private boolean jobStartedByTimerAndForceActionIsTrue(final String userId, final boolean forceAction) {
         return (TIMER_USERID.equals(userId) && forceAction);
     }
 
-    private static boolean unlockSystem(final String systemName, final String userId, final PrintStream logger, Descriptor<? extends BuildStep> descriptor) {
+    private boolean unlockSystem(final String systemName, final String userId, final PrintStream logger) {
         logger.println("User '" + userId + "' is trying to unlock system '" + systemName + "'");
 
-        final SystemStatusInformation systemInformation = Systems.getInstance().get(systemName);
+        final SystemStatusInformation systemInformation = systems.get(systemName);
 
         if (systemUnlockedOrNew(systemInformation)) {
             logger.println("System '" + systemName + "' is not locked");
         } else {
-            updateLockStatus(systemName, systemInformation, userId, Status.UNLOCKED, descriptor);
+            updateLockStatus(systemName, systemInformation, userId, Status.UNLOCKED);
             logger.println("System '" + systemName + "' was unlocked by user '" + userId + "'");
         }
 
@@ -198,7 +200,7 @@ public class TokenManager {
         return true;
     }
 
-    private static boolean buildIsCausedBy(Class<? extends Cause> clazz, Run<?, ?> build) {
+    private boolean buildIsCausedBy(Class<? extends Cause> clazz, Run<?, ?> build) {
         final List<Cause> causes = build.getCauses();
 
         for (final Cause cause : causes) {
@@ -210,7 +212,12 @@ public class TokenManager {
         return false;
     }
 
-    public static Map<String, SystemStatusInformation> getSystems() {
-        return Collections.unmodifiableMap(Systems.getInstance());
+    public Map<String, SystemStatusInformation> getSystems() {
+        return Collections.unmodifiableMap(systems);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "TokenManager";
     }
 }
