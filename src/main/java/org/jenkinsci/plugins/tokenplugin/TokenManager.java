@@ -121,7 +121,7 @@ public class TokenManager extends GlobalConfiguration {
 
         final SystemStatusInformation systemInformation = systems.get(systemName);
 
-        if (systemUnlockedOrNew(systemInformation) || jobStartedByTimerAndForceActionIsTrue(userId, forceAction)) {
+        if (isCanAndShouldLockSystem(userId, forceAction, systemInformation)) {
             updateLockStatus(systemName, systemInformation, userId, Status.LOCKED);
             logger.println("System '" + systemName + "' locked");
         } else {
@@ -180,8 +180,8 @@ public class TokenManager extends GlobalConfiguration {
         return (systemInformation == null) || Status.UNLOCKED.equals(systemInformation.getStatus());
     }
 
-    private boolean jobStartedByTimerAndForceActionIsTrue(final String userId, final boolean forceAction) {
-        return (TIMER_USERID.equals(userId) && forceAction);
+    private boolean isCanAndShouldLockSystem(final String userId, final boolean forceAction, SystemStatusInformation systemStatusInformation) {
+        return systemUnlockedOrNew(systemStatusInformation) || (TIMER_USERID.equals(userId) && forceAction);
     }
 
     private boolean unlockSystem(final String systemName, final String userId, final PrintStream logger) {
