@@ -10,3 +10,11 @@
 
 0.4
     * fixed: overwriting headerLink in case of lock/unlock
+
+
+
+1.1
+    * OLD: lock locked systems only if forceAction is true - NEW:lock locked systems only if forceAction is true and job was started by a timer
+    * added new actions "LOCK_AND_SET_HEADERLINK_ACTION" and "UNLOCK_AND_RESET_HEADERLINK_ACTION"
+    * fixed logic to find the root-trigger if job was triggered by an upstream project (for users it only worked for one level, for timer no upstream jobs were supported)
+    * added possibility to manage token by postbuildAction
