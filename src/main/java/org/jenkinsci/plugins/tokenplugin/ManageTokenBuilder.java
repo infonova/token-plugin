@@ -26,6 +26,7 @@ public class ManageTokenBuilder extends Builder {
 
     private static final String UNLOCK_ACTION = "unlock";
     private static final String LOCK_ACTION = "lock";
+    private static final String DELETE_ACTION = "delete";
     private static final String SET_HEADERLINK_ACTION = "setHeaderLink";
     private static final String LOCK_AND_SET_HEADERLINK_ACTION = "lockAndSetHeaderLink";
     private static final String UNLOCK_AND_RESET_HEADERLINK_ACTION = "unlockAndResetHeaderLink";
@@ -35,13 +36,15 @@ public class ManageTokenBuilder extends Builder {
     private final String headerLink;
     private final String action;
     private final boolean forceAction;
+    private final String notice;
 
     @DataBoundConstructor
-    public ManageTokenBuilder(String systemName, String action, String headerLink, boolean forceAction) {
+    public ManageTokenBuilder(String systemName, String action, String headerLink, boolean forceAction, String notice) {
         this.systemName = systemName;
         this.action = action;
         this.headerLink = headerLink;
         this.forceAction = forceAction;
+        this.notice = notice;
     }
 
     public String getSystemName() {
@@ -61,7 +64,7 @@ public class ManageTokenBuilder extends Builder {
             throws InterruptedException, IOException {
         listener.getLogger();
 
-        return TokenManager.getInstance().manageToken(build, listener, systemName, headerLink, action, forceAction);
+        return TokenManager.getInstance().manageToken(build, listener, systemName, headerLink, action, forceAction, notice);
 
     }
 
@@ -79,7 +82,7 @@ public class ManageTokenBuilder extends Builder {
         }
 
         public String getDisplayName() {
-            return "Lock or Unlock System";
+            return "Delete, Lock or Unlock System";
         }
 
         @SuppressWarnings("rawtypes")
@@ -104,6 +107,7 @@ public class ManageTokenBuilder extends Builder {
             actionListBox.add("Set Header Link", SET_HEADERLINK_ACTION);
             actionListBox.add("Lock System and Set Header Link", LOCK_AND_SET_HEADERLINK_ACTION);
             actionListBox.add("Unlock System and Reset Header Link", UNLOCK_AND_RESET_HEADERLINK_ACTION);
+            actionListBox.add("Delete Tokens", DELETE_ACTION);
             return actionListBox;
         }
 
@@ -112,4 +116,8 @@ public class ManageTokenBuilder extends Builder {
     public String getHeaderLink() {
         return headerLink;
     }
+
+	public String getNotice() {
+		return notice;
+	}
 }

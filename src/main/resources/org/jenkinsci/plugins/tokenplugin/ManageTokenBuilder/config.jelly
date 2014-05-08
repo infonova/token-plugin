@@ -11,4 +11,7 @@
   <f:entry title="${%Header Link}" field="headerLink">
     <f:textbox/>
   </f:entry>
+  <f:entry title="${%Notice}" field="notice">
+    <f:textbox/>
+  </f:entry>
 </j:jelly>

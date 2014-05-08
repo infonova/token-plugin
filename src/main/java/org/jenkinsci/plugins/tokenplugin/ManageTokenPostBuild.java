@@ -25,6 +25,7 @@ public class ManageTokenPostBuild extends Recorder {
 
     private static final String UNLOCK_ACTION = "unlock";
     private static final String LOCK_ACTION = "lock";
+    private static final String DELETE_ACTION = "delete";
     private static final String SET_HEADERLINK_ACTION = "setHeaderLink";
     private static final String LOCK_AND_SET_HEADERLINK_ACTION = "lockAndSetHeaderLink";
     private static final String UNLOCK_AND_RESET_HEADERLINK_ACTION = "unlockAndResetHeaderLink";
@@ -33,15 +34,17 @@ public class ManageTokenPostBuild extends Recorder {
     private final String systemName;
     private final String headerLink;
     private final String action;
+    private final String notice;
     private final boolean forceAction;
 
     @DataBoundConstructor
-    public ManageTokenPostBuild(String systemName, String headerLink, String action, boolean forceAction) {
+    public ManageTokenPostBuild(String systemName, String headerLink, String action, boolean forceAction, String notice) {
         super();
         this.systemName = systemName;
         this.headerLink = headerLink;
         this.action = action;
         this.forceAction = forceAction;
+        this.notice = notice;
     }
 
     @Override
@@ -53,7 +56,7 @@ public class ManageTokenPostBuild extends Recorder {
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
 
-        return TokenManager.getInstance().manageToken(build, listener, systemName, headerLink, action, forceAction);
+        return TokenManager.getInstance().manageToken(build, listener, systemName, headerLink, action, forceAction, notice);
     }
 
     @Extension
@@ -65,7 +68,7 @@ public class ManageTokenPostBuild extends Recorder {
         }
 
         public String getDisplayName() {
-            return "Lock or Unlock System";
+            return "Delete, Lock or Unlock System";
         }
 
         @SuppressWarnings("rawtypes")
@@ -87,6 +90,7 @@ public class ManageTokenPostBuild extends Recorder {
             ListBoxModel actionListBox = new ListBoxModel(3);
             actionListBox.add("Lock System", LOCK_ACTION);
             actionListBox.add("Unlock System", UNLOCK_ACTION);
+            actionListBox.add("Delete Tokens", DELETE_ACTION);
             actionListBox.add("Set Header Link", SET_HEADERLINK_ACTION);
             actionListBox.add("Lock System and Set Header Link", LOCK_AND_SET_HEADERLINK_ACTION);
             actionListBox.add("Unlock System and Reset Header Link", UNLOCK_AND_RESET_HEADERLINK_ACTION);
@@ -111,6 +115,10 @@ public class ManageTokenPostBuild extends Recorder {
 
     public boolean isForceAction() {
         return forceAction;
+    }
+    
+    public String getNotice() {
+    	return notice;
     }
 
     @Override

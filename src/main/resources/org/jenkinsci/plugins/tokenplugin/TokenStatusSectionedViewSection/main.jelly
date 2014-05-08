@@ -1,52 +1,180 @@
-<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
-
-
-  <j:if test="${section.name.length() > 0}">
-    <h2>${section.name}</h2>
-  </j:if>
-
-
-            <hr/>
-  <div>
-      <j:forEach var="tokenEntry" items="${section.token}">
-              <div style="float: left; width: 280px; margin: 10px;">
-          <table style="width: 280px; background-color: #EEEEEE;">
-          <tr><td style="font-size:200%" colspan="2"><b>
-          <j:if test="${not empty(tokenEntry.value.headerLink)}">
-              <a href="${tokenEntry.value.headerLink}">${tokenEntry.key}</a>
-          </j:if>
-          <j:if test="${empty(tokenEntry.value.headerLink)}">
-              ${tokenEntry.key}
-          </j:if>
-          </b></td></tr>
-          <tr><td><b>last changed by</b></td><td>${tokenEntry.value.userId}</td></tr>
-          <tr><td><b>since</b></td><td>${tokenEntry.value.changeDateString}</td></tr>
-        <j:if test="${tokenEntry.value.status == 'UNLOCKED'}">
-          <tr><td colspan="2" align="center"><img src="${resURL}/plugin/token-plugin/images/UNLOCKED.gif" height="150px" width="100px"/></td></tr>
-          <tr><td colspan="2" align="center">
-            <form action="${rootURL}/job/SCM-utility-lock-system/buildWithParameters" method="post" target="_blank">
-                <input type="hidden" name="systemName" value="${tokenEntry.key}"/>
-                <input type="hidden" name="action" value="Lock System"/>
-                <input type="submit" value="Lock System"/>
-                <input type="hidden" name="json" value="init"/>
-            </form>
-          </td></tr>
-        </j:if>
-        <j:if test="${tokenEntry.value.status == 'LOCKED'}">
-          <tr><td colspan="2" align="center"><img src="${resURL}/plugin/token-plugin/images/LOCKED.gif" height="150px" width="100px"/></td></tr>
-          <tr><td colspan="2" align="center">
-        <form action="${rootURL}/job/SCM-utility-unlock-system/buildWithParameters" method="post" target="_blank">
-            <input type="hidden" name="systemName" value="${tokenEntry.key}"/>
-            <input type="hidden" name="action" value="Unlock System"/>
-            <input type="submit" value="Unlock System"/>
-            <input type="hidden" name="json" value="init"/>
-        </form>
-          </td></tr>
-        </j:if>
-
-        </table>
-              </div>
-      </j:forEach>
-  </div>
-
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
+	<hr/>
+	<div>
+	<script type="text/javascript">
+		
+		function deleteTokens(token)
+		{
+			var regEx = window.prompt("Delete Tokens over regEx:\nPlease enter a regEX (used on systemNames)\n ",token);
+			
+			if(regEx!=null)
+			{
+				if(!regEx)
+				{
+					alert("please enter a regEX!");	
+				}
+				else
+				{	
+					var r=confirm("Do you really want to delete Tokens which systemNames matches the regEx \""+ regEx+"\" ?");
+					if(r==true)
+					{
+						var notice = document.getElementById(token+"notice");
+						notice.disabled=false;
+						notice.value=regEx+"";
+	
+						document.forms[token+"form"].action="${rootURL}/job/SCM-utility-delete-system/buildWithParameters";
+									
+						document.getElementById(token+"submit").disabled=true;
+						submitTokenForm(token);	
+						notice.value="";
+					}
+				}
+			}					
+		}
+		
+		function setHeaderLinkOnToken(token)
+		{
+			
+			var link = document.getElementById(token+"headerLink").value;
+			
+			if(link == null || !link)
+			{
+				link = window.prompt("Please enter a headerlink for "+token+"\n(for deleting, keep field empty)","http://");
+			}
+			else
+			{
+				link = window.prompt("Please enter a headerlink for "+token+"\n(for deleting, keep field empty)",link);
+			}
+			var tform=document.forms[token+"form"];
+			
+			if(link != null)
+			{
+				/*if(!link)
+				{
+					alert("No link was entered!");	
+				}
+				else */
+				{
+					document.getElementById(token+"headerLink").value=link;
+					tform.action="${rootURL}/job/SCM-utility-setheaderlink-system/buildWithParameters";
+					submitTokenForm(token);
+				}
+			}
+		}
+		
+		function submitTokenForm(token)
+		{
+			var tform=document.forms[token+"form"];
+			tform.submit();			
+			var strref='<a href="javascript:reloadPage()">-- refresh --</a>';
+			document.getElementById(token+"last").innerHTML = strref;
+			document.getElementById(token+"date").innerHTML = "autorefresh in 10 sec.";	
+			//reloading page after 10 sec.
+			setTimeout(function(){reloadPage()},10000);	
+		}		
+		
+		function changelocked(token)
+		{
+			submitTokenForm(token);	
+			
+			
+			var button = document.getElementById(token+"submit");
+			var lockimg = document.getElementById(token+"img");
+			var tform=document.forms[token+"form"];
+			
+			document.getElementById(token+"notice").disabled=true;	
+			button.disabled=true;			
+			
+			if(document.getElementById(token+"submit").value =="Unlock System")
+			{						
+				tform.action="${rootURL}/job/SCM-utility-lock-system/buildWithParameters";										
+				lockimg.src="${resURL}/plugin/token-plugin/images/UNLOCKED.gif";
+			}
+			else if(document.getElementById(token+"submit").value =="Lock System")
+			{
+				tform.action="${rootURL}/job/SCM-utility-lock-system/buildWithParameters";		
+				lockimg.src="${resURL}/plugin/token-plugin/images/LOCKED.gif";
+			}			
+						
+					
+		}
+		
+		function reloadPage()
+		{
+			window.location.href=window.location.href;
+		}
+		
+	
+	</script>
+	
+	<j:if test="${section.name.length() > 0}">
+	<h2>${section.name}</h2>
+	</j:if>
+		<j:forEach var="tokenEntry" items="${section.token}">
+			<div style="float: left; width: 285px; margin: 5px;">
+			
+				<table  style="width: 285px; background-color: #EEEEEE;">
+					
+					<tr>
+					
+						<j:if test="${not empty(tokenEntry.value.headerLink)}">
+						<td align="left" style="font-size:200%" colspan="2"  >
+								<b><a href="${tokenEntry.value.headerLink}" target="_blank">${tokenEntry.key}</a></b>								
+							</td>
+							<td>								
+								<a onclick="deleteTokens('${tokenEntry.key}')">x</a>
+								<a onclick="setHeaderLinkOnToken('${tokenEntry.key}')">h</a>	
+							</td>
+						</j:if>						
+						<j:if test="${empty(tokenEntry.value.headerLink)}">
+							<td align="left" style="font-size:200%" colspan="2"  >
+								<b><a onclick="setHeaderLinkOnToken('${tokenEntry.key}')" >${tokenEntry.key}</a></b>
+							</td>							
+							<td>								
+								<a onclick="deleteTokens('${tokenEntry.key}')">x</a>
+												
+							</td>
+						</j:if>										
+					</tr>
+					<tr><td><b>last changed by</b></td><td id="${tokenEntry.key}last">${tokenEntry.value.userId}</td></tr>
+					<tr><td><b>since</b></td><td id="${tokenEntry.key}date">${tokenEntry.value.changeDateString}</td></tr>
+					
+					<j:if test="${tokenEntry.value.status == 'UNLOCKED'}">						
+						<tr><td colspan="2" align="center"><img id="${tokenEntry.key}img" src="${resURL}/plugin/token-plugin/images/UNLOCKED.gif" height="150px" width="100px"/></td></tr>
+						<tr><td colspan="2" align="center">		
+						<form name="${tokenEntry.key}form" action="${rootURL}/job/SCM-utility-lock-system/buildWithParameters" method="post" target="_blank">	
+							<!--textarea id="taNotice" name="notice" cols="16"  rows="2"></textarea-->						
+							<input align="center" id="${tokenEntry.key}notice" name="notice" value="" autocomplete="off" size="33" />
+							<input type="hidden" name="systemName" id="${tokenEntry.key}systemname" value="${tokenEntry.key}" />
+							<input type="hidden" name="action" value="Lock System"/>										
+							<input type="hidden" name="json" value="init"/>		
+							<input type="hidden" id="${tokenEntry.key}headerLink" name="headerLink" value="${tokenEntry.value.headerLink}"/>								
+						</form>
+						</td></tr>
+						<tr><td colspan="2" align="center">	
+						<input id="${tokenEntry.key}submit" type="submit" value="Lock System" onclick="changelocked('${tokenEntry.key}')" autocomplete="off" />
+						</td></tr>
+					</j:if>
+					
+					<j:if test="${tokenEntry.value.status == 'LOCKED'}">
+						<tr><td colspan="2" align="center"><img id="${tokenEntry.key}img" src="${resURL}/plugin/token-plugin/images/LOCKED.gif" height="150px" width="100px"/></td></tr>
+						<tr><td colspan="2" align="center">		
+						<form name="${tokenEntry.key}form" action="${rootURL}/job/SCM-utility-unlock-system/buildWithParameters" method="post" target="_blank">	
+							<!--textarea id="taNotice" name="notice" cols="16" rows="2">${tokenEntry.value.notice}</textarea-->						
+							<input align="center" name="notice" id="${tokenEntry.key}notice" value="${tokenEntry.value.notice}" autocomplete="off" disabled="true" size="33" />
+							<input type="hidden" name="systemName" id="${tokenEntry.key}systemname" value="${tokenEntry.key}" />
+							<input type="hidden" name="action" value="Unlock System"/>									
+							<input type="hidden" name="json" value="init"/>		
+							<input type="hidden" id="${tokenEntry.key}headerLink" name="headerLink" value="${tokenEntry.value.headerLink}"/>							
+						</form>
+						</td></tr>
+						<tr><td colspan="2" align="center">	
+						<input  id="${tokenEntry.key}submit" type="submit" value="Unlock System" onclick="changelocked('${tokenEntry.key}')" autocomplete="off" />			
+						</td></tr>
+					</j:if>	
+									
+				</table>				
+			</div>
+		</j:forEach>
+	</div>
 </j:jelly>

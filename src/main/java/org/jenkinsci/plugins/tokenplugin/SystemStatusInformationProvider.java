@@ -76,6 +76,8 @@ public class SystemStatusInformationProvider extends AbstractModelObject impleme
             responseContent = StringUtils.replace(responseContent, "$statusImagePath", statusImagePath);
             responseContent = StringUtils.replace(responseContent, "$userId", userId);
             responseContent = StringUtils.replace(responseContent, "$changeDate", systemInformation.getChangeDateString());
+            responseContent = StringUtils.replace(responseContent, "$notice", systemInformation.getNotice());
+            responseContent = StringUtils.replace(responseContent, "$headerlink", systemInformation.getHeaderLink());
 
             response.getWriter().write(responseContent);
         } else {
