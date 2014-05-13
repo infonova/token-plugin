@@ -22,7 +22,7 @@
 						notice.disabled=false;
 						notice.value=regEx+"";
 	
-						document.forms[token+"form"].action="${rootURL}/job/SCM-utility-delete-system/buildWithParameters";
+						document.forms[token+"form"].action="${section.deletejob}/buildWithParameters";
 									
 						document.getElementById(token+"submit").disabled=true;
 						submitTokenForm(token);	
@@ -33,8 +33,7 @@
 		}
 		
 		function setHeaderLinkOnToken(token)
-		{
-			
+		{			
 			var link = document.getElementById(token+"headerLink").value;
 			
 			if(link == null || !link)
@@ -48,15 +47,10 @@
 			var tform=document.forms[token+"form"];
 			
 			if(link != null)
-			{
-				/*if(!link)
-				{
-					alert("No link was entered!");	
-				}
-				else */
+			{				
 				{
 					document.getElementById(token+"headerLink").value=link;
-					tform.action="${rootURL}/job/SCM-utility-setheaderlink-system/buildWithParameters";
+					tform.action="${section.setheaderlinkjob}/buildWithParameters";
 					submitTokenForm(token);
 				}
 			}
@@ -75,8 +69,7 @@
 		
 		function changelocked(token)
 		{
-			submitTokenForm(token);	
-			
+			submitTokenForm(token);				
 			
 			var button = document.getElementById(token+"submit");
 			var lockimg = document.getElementById(token+"img");
@@ -86,17 +79,13 @@
 			button.disabled=true;			
 			
 			if(document.getElementById(token+"submit").value =="Unlock System")
-			{						
-				tform.action="${rootURL}/job/SCM-utility-lock-system/buildWithParameters";										
+			{																
 				lockimg.src="${resURL}/plugin/token-plugin/images/UNLOCKED.gif";
 			}
 			else if(document.getElementById(token+"submit").value =="Lock System")
-			{
-				tform.action="${rootURL}/job/SCM-utility-lock-system/buildWithParameters";		
+			{	
 				lockimg.src="${resURL}/plugin/token-plugin/images/LOCKED.gif";
-			}			
-						
-					
+			}											
 		}
 		
 		function reloadPage()
@@ -104,21 +93,46 @@
 			window.location.href=window.location.href;
 		}
 		
-	
+		function setHeaderSize(token)
+		{
+			var header= document.getElementById(token+"header");
+			var size=token.length;
+			
+			
+			if(size > 28)
+			{
+				header.style="font-size:90%";
+			} else
+			if(size > 25)
+			{
+				header.style="font-size:100%";
+			} else
+			if(size > 20)
+			{
+				header.style="font-size:130%";
+			} else
+			if(size > 18)
+			{
+				header.style="font-size:140%";
+			} else
+			if(size > 15)
+			{
+				header.style="font-size:150%";
+			}			
+		}		
+		
 	</script>
-	
+		
 	<j:if test="${section.name.length() > 0}">
 	<h2>${section.name}</h2>
 	</j:if>
 		<j:forEach var="tokenEntry" items="${section.token}">
-			<div style="float: left; width: 285px; margin: 5px;">
+			<div style="float: left; width: 290px; height: 320px; margin: 5px;">
 			
-				<table  style="width: 285px; background-color: #EEEEEE;">
-					
-					<tr>
-					
+				<table  style="width: 290px; height: 320px; background-color: #EEEEEE;">					
+					<tr>					
 						<j:if test="${not empty(tokenEntry.value.headerLink)}">
-						<td align="left" style="font-size:200%" colspan="2"  >
+						<td id="${tokenEntry.key}header" align="left" style="font-size:200%" colspan="2"  >
 								<b><a href="${tokenEntry.value.headerLink}" target="_blank">${tokenEntry.key}</a></b>								
 							</td>
 							<td>								
@@ -127,7 +141,7 @@
 							</td>
 						</j:if>						
 						<j:if test="${empty(tokenEntry.value.headerLink)}">
-							<td align="left" style="font-size:200%" colspan="2"  >
+							<td id="${tokenEntry.key}header" align="left" style="font-size:200%" colspan="2"  >
 								<b><a onclick="setHeaderLinkOnToken('${tokenEntry.key}')" >${tokenEntry.key}</a></b>
 							</td>							
 							<td>								
@@ -140,9 +154,9 @@
 					<tr><td><b>since</b></td><td id="${tokenEntry.key}date">${tokenEntry.value.changeDateString}</td></tr>
 					
 					<j:if test="${tokenEntry.value.status == 'UNLOCKED'}">						
-						<tr><td colspan="2" align="center"><img id="${tokenEntry.key}img" src="${resURL}/plugin/token-plugin/images/UNLOCKED.gif" height="150px" width="100px"/></td></tr>
+						<tr><td colspan="2" align="center"><img onload="setHeaderSize('${tokenEntry.key}')" id="${tokenEntry.key}img" src="${resURL}/plugin/token-plugin/images/UNLOCKED.gif" height="150px" width="100px"/></td></tr>
 						<tr><td colspan="2" align="center">		
-						<form name="${tokenEntry.key}form" action="${rootURL}/job/SCM-utility-lock-system/buildWithParameters" method="post" target="_blank">	
+						<form name="${tokenEntry.key}form" action="${section.lockjob}/buildWithParameters" method="post" target="_blank">	
 							<!--textarea id="taNotice" name="notice" cols="16"  rows="2"></textarea-->						
 							<input align="center" id="${tokenEntry.key}notice" name="notice" value="" autocomplete="off" size="33" />
 							<input type="hidden" name="systemName" id="${tokenEntry.key}systemname" value="${tokenEntry.key}" />
@@ -157,9 +171,9 @@
 					</j:if>
 					
 					<j:if test="${tokenEntry.value.status == 'LOCKED'}">
-						<tr><td colspan="2" align="center"><img id="${tokenEntry.key}img" src="${resURL}/plugin/token-plugin/images/LOCKED.gif" height="150px" width="100px"/></td></tr>
+						<tr><td colspan="2" align="center"><img onload="setHeaderSize('${tokenEntry.key}')" id="${tokenEntry.key}img" src="${resURL}/plugin/token-plugin/images/LOCKED.gif" height="150px" width="100px"/></td></tr>
 						<tr><td colspan="2" align="center">		
-						<form name="${tokenEntry.key}form" action="${rootURL}/job/SCM-utility-unlock-system/buildWithParameters" method="post" target="_blank">	
+						<form name="${tokenEntry.key}form" action="${section.unlockjob}/buildWithParameters" method="post" target="_blank">	
 							<!--textarea id="taNotice" name="notice" cols="16" rows="2">${tokenEntry.value.notice}</textarea-->						
 							<input align="center" name="notice" id="${tokenEntry.key}notice" value="${tokenEntry.value.notice}" autocomplete="off" disabled="true" size="33" />
 							<input type="hidden" name="systemName" id="${tokenEntry.key}systemname" value="${tokenEntry.key}" />
