@@ -280,7 +280,6 @@ public class TokenManager extends GlobalConfiguration {
 				return true;
 			}
 		}
-
 		return false;
 	}
 

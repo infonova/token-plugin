@@ -12,12 +12,14 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+import jenkins.model.GlobalConfiguration;
+
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.export.Exported;
 
 public class TokenStatusSectionedViewSection extends SectionedViewSection {
 
-	private TokenPluginConfig tokenConfig = null;
+	private TokenPluginConfig tokenConfig;
 
 	@DataBoundConstructor
 	public TokenStatusSectionedViewSection(String name, Width width,
@@ -52,33 +54,28 @@ public class TokenStatusSectionedViewSection extends SectionedViewSection {
 		return filteredTokens;
 	}
 
-	private void initConifg() {
-		if (tokenConfig == null) {
-			tokenConfig = new TokenPluginConfig();
-		} else {
-			// load configfile
-			tokenConfig.load();
-		}
 
-	}
-
-	public String getDeletejob() {
-		initConifg();
+	@Exported
+	public String getDeletejob() {	
+		tokenConfig=new TokenPluginConfig();
 		return tokenConfig.getLinkToUtilityDeleteJob();
 	}
-
+	
+	@Exported
 	public String getLockjob() {
-		initConifg();
+		tokenConfig=new TokenPluginConfig();
 		return tokenConfig.getLinkToUtilityLockSystemJob();
 	}
-
-	public String getUnlockjob() {
-		initConifg();
+	
+	@Exported
+	public String getUnlockjob() {	
+		tokenConfig=new TokenPluginConfig();
 		return tokenConfig.getLinkToUtilityUnlockSystemJob();
 	}
 
+	@Exported
 	public String getSetheaderlinkjob() {
-		initConifg();
+		tokenConfig=new TokenPluginConfig();
 		return tokenConfig.getLinkToUtilitySetheaderlinkJob();
 	}
 

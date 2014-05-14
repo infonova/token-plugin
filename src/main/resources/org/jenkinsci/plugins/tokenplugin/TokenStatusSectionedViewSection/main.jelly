@@ -22,7 +22,7 @@
 						notice.disabled=false;
 						notice.value=regEx+"";
 	
-						document.forms[token+"form"].action="${section.deletejob}/buildWithParameters";
+						document.forms[token+"form"].action="${rootURL}${section.deletejob}/buildWithParameters";
 									
 						document.getElementById(token+"submit").disabled=true;
 						submitTokenForm(token);	
@@ -50,7 +50,7 @@
 			{				
 				{
 					document.getElementById(token+"headerLink").value=link;
-					tform.action="${section.setheaderlinkjob}/buildWithParameters";
+					tform.action="${rootURL}${section.setheaderlinkjob}/buildWithParameters";
 					submitTokenForm(token);
 				}
 			}
@@ -156,7 +156,7 @@
 					<j:if test="${tokenEntry.value.status == 'UNLOCKED'}">						
 						<tr><td colspan="2" align="center"><img onload="setHeaderSize('${tokenEntry.key}')" id="${tokenEntry.key}img" src="${resURL}/plugin/token-plugin/images/UNLOCKED.gif" height="150px" width="100px"/></td></tr>
 						<tr><td colspan="2" align="center">		
-						<form name="${tokenEntry.key}form" action="${section.lockjob}/buildWithParameters" method="post" target="_blank">	
+						<form name="${tokenEntry.key}form" action="${rootURL}${section.lockjob}/buildWithParameters" method="post" target="_blank">	
 							<!--textarea id="taNotice" name="notice" cols="16"  rows="2"></textarea-->						
 							<input align="center" id="${tokenEntry.key}notice" name="notice" value="" autocomplete="off" size="33" />
 							<input type="hidden" name="systemName" id="${tokenEntry.key}systemname" value="${tokenEntry.key}" />
@@ -173,7 +173,7 @@
 					<j:if test="${tokenEntry.value.status == 'LOCKED'}">
 						<tr><td colspan="2" align="center"><img onload="setHeaderSize('${tokenEntry.key}')" id="${tokenEntry.key}img" src="${resURL}/plugin/token-plugin/images/LOCKED.gif" height="150px" width="100px"/></td></tr>
 						<tr><td colspan="2" align="center">		
-						<form name="${tokenEntry.key}form" action="${section.unlockjob}/buildWithParameters" method="post" target="_blank">	
+						<form name="${tokenEntry.key}form" action="${rootURL}${section.unlockjob}/buildWithParameters" method="post" target="_blank">	
 							<!--textarea id="taNotice" name="notice" cols="16" rows="2">${tokenEntry.value.notice}</textarea-->						
 							<input align="center" name="notice" id="${tokenEntry.key}notice" value="${tokenEntry.value.notice}" autocomplete="off" disabled="true" size="33" />
 							<input type="hidden" name="systemName" id="${tokenEntry.key}systemname" value="${tokenEntry.key}" />
