@@ -7,7 +7,7 @@
     </parent>
 
     <artifactId>token-plugin</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>2.0</version>
     <packaging>hpi</packaging>
     <name>Token Plugin</name>
     <description>Let users grab and release Tokens for system in order to lock and unlock them for "public" use.</description>
@@ -21,9 +21,9 @@
     </developers>
 
     <scm>
-        <connection>scm:svn:http://grzsvn01.infonova.at/ise/tools/jenkins/plugins/token-plugin/trunk</connection>
-        <developerConnection>scm:svn:http://grzsvn01.infonova.at/ise/tools/jenkins/plugins/token-plugin/trunk</developerConnection>
-        <url>http://grzsvn01.infonova.at/ise/tools/jenkins/plugins/token-plugin/trunk</url>
+        <connection>scm:svn:http://grzsvn01.infonova.at/ise/tools/jenkins/plugins/token-plugin/tags/token-plugin-2.0</connection>
+        <developerConnection>scm:svn:http://grzsvn01.infonova.at/ise/tools/jenkins/plugins/token-plugin/tags/token-plugin-2.0</developerConnection>
+        <url>http://grzsvn01.infonova.at/ise/tools/jenkins/plugins/token-plugin/tags/token-plugin-2.0</url>
     </scm>
 
     <distributionManagement>
