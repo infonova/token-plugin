@@ -102,12 +102,4 @@ public class GetTokenTest {
 		
 		Assert.assertEquals(0, map.size());
 	}
-	
-	@Test
-	public void Test()
-	{
-		TokenPluginConfig cc = new TokenPluginConfig();
-		
-		System.out.println(cc+" ");
-	}
 }
