@@ -21,8 +21,8 @@
     </developers>
 
     <scm>
-        <connection>scm:svn:http://grzsvn01.infonova.at/ise/tools/jenkins/plugins/token-plugin/trunk</connection>
-        <developerConnection>scm:svn:http://grzsvn01.infonova.at/ise/tools/jenkins/plugins/token-plugin/trunk</developerConnection>
+        <connection>scm:git:ssh://git.infonova.at:29418/jenkins/plugins/token-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git.infonova.at:29418/jenkins/plugins/token-plugin.git</developerConnection>
         <url>http://grzsvn01.infonova.at/ise/tools/jenkins/plugins/token-plugin/trunk</url>
     </scm>
 
