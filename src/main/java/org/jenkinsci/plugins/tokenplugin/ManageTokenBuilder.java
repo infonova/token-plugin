@@ -100,7 +100,7 @@ public class ManageTokenBuilder extends Builder {
             return FormValidation.ok();
         }
 
-        public ListBoxModel doFillActionItems() {
+        public ListBoxModel doFillTokenActionItems() {
             ListBoxModel tokenActionListBox = new ListBoxModel(3);
             tokenActionListBox.add("Lock System", LOCK_ACTION);
             tokenActionListBox.add("Unlock System", UNLOCK_ACTION);
