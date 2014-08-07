@@ -1,5 +1,5 @@
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
-  <f:entry title="${%Action}" field="action">
+  <f:entry title="${%Action}" field="tokenAction">
     <f:select/>
   </f:entry>
   <f:entry title="${%force execution of action if started by timer}" field="forceAction">

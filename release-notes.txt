@@ -23,4 +23,7 @@
 	* added function to delete token(s) by pressing "x" on the token witch a regex
 	* added function to leave a notice at the token when you lock a system
 	* added easy create headerlink function by pressing the systemName or on "h"(if it is shown)
- 
+
+2.1
+	* fixed set header link on firefox
+	* fixed header font resize on chrome

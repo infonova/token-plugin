@@ -38,21 +38,17 @@
 			
 			if(link == null || !link)
 			{
-				link = window.prompt("Please enter a headerlink for "+token+"\n(for deleting, keep field empty)","http://");
+			    link = "http://";
 			}
-			else
-			{
-				link = window.prompt("Please enter a headerlink for "+token+"\n(for deleting, keep field empty)",link);
-			}
+
+			link = window.prompt("Please enter a headerlink for "+token+"\n(for deleting, keep field empty)",link);
 			var tform=document.forms[token+"form"];
 			
 			if(link != null)
-			{				
-				{
-					document.getElementById(token+"headerLink").value=link;
-					tform.action="${rootURL}${section.setheaderlinkjob}/buildWithParameters";
-					submitTokenForm(token);
-				}
+			{
+                document.getElementById(token+"headerLink").value=link;
+                tform.action="${rootURL}${section.setheaderlinkjob}/buildWithParameters";
+                submitTokenForm(token);
 			}
 		}
 		
@@ -97,28 +93,32 @@
 		{
 			var header= document.getElementById(token+"header");
 			var size=token.length;
-			
-			
+            var resizePercentage = null;
+
 			if(size > 28)
 			{
-				header.style="font-size:90%";
+				resizePercentage="90%";
 			} else
 			if(size > 25)
 			{
-				header.style="font-size:100%";
+				resizePercentage="100%";
 			} else
 			if(size > 20)
 			{
-				header.style="font-size:130%";
+				resizePercentage="130%";
 			} else
 			if(size > 18)
 			{
-				header.style="font-size:140%";
+				resizePercentage="140%";
 			} else
 			if(size > 15)
 			{
-				header.style="font-size:150%";
-			}			
+				resizePercentage="150%";
+			}
+
+			if (resizePercentage != null) {
+			    header.style.fontSize=resizePercentage;
+			}
 		}		
 		
 	</script>
@@ -160,7 +160,7 @@
 							<!--textarea id="taNotice" name="notice" cols="16"  rows="2"></textarea-->						
 							<input align="center" id="${tokenEntry.key}notice" name="notice" value="" autocomplete="off" size="33" />
 							<input type="hidden" name="systemName" id="${tokenEntry.key}systemname" value="${tokenEntry.key}" />
-							<input type="hidden" name="action" value="Lock System"/>										
+							<input type="hidden" name="tokenAction" value="Lock System"/>
 							<input type="hidden" name="json" value="init"/>		
 							<input type="hidden" id="${tokenEntry.key}headerLink" name="headerLink" value="${tokenEntry.value.headerLink}"/>								
 						</form>
@@ -177,7 +177,7 @@
 							<!--textarea id="taNotice" name="notice" cols="16" rows="2">${tokenEntry.value.notice}</textarea-->						
 							<input align="center" name="notice" id="${tokenEntry.key}notice" value="${tokenEntry.value.notice}" autocomplete="off" disabled="true" size="33" />
 							<input type="hidden" name="systemName" id="${tokenEntry.key}systemname" value="${tokenEntry.key}" />
-							<input type="hidden" name="action" value="Unlock System"/>									
+							<input type="hidden" name="tokenAction" value="Unlock System"/>
 							<input type="hidden" name="json" value="init"/>		
 							<input type="hidden" id="${tokenEntry.key}headerLink" name="headerLink" value="${tokenEntry.value.headerLink}"/>							
 						</form>

@@ -54,7 +54,7 @@ public class TokenManager extends GlobalConfiguration {
 
 	public boolean manageToken(AbstractBuild<?, ?> build,
 			TaskListener listener, String systemName, String headerLink,
-			String action, boolean forceAction, String notice)
+			String tokenAction, boolean forceAction, String notice)
 			throws IOException, InterruptedException {
 
 		final PrintStream logger = listener.getLogger();
@@ -102,25 +102,25 @@ public class TokenManager extends GlobalConfiguration {
 			}
 
 			if (!StringUtils.isEmpty(userId)) {
-				if (StringUtils.equals(UNLOCK_ACTION, action)) {
+				if (StringUtils.equals(UNLOCK_ACTION, tokenAction)) {
 					continueBuild = unlockSystem(expandedSystemName, userId,
 							logger, expandedNotice);
-				} else if (StringUtils.equals(LOCK_ACTION, action)) {
+				} else if (StringUtils.equals(LOCK_ACTION, tokenAction)) {
 					continueBuild = lockSystem(expandedSystemName, userId,
 							forceAction, logger, expandedNotice);
-				} else if (StringUtils.equals(DELETE_ACTION, action)) {
+				} else if (StringUtils.equals(DELETE_ACTION, tokenAction)) {
 					continueBuild = deleteSystemsWithRegEx(expandedNotice, logger);
-				} else if (StringUtils.equals(SET_HEADERLINK_ACTION, action)) {
+				} else if (StringUtils.equals(SET_HEADERLINK_ACTION, tokenAction)) {
 					setHeaderLink(expandedSystemName, expandedHeaderLink,
 							logger);
 				} else if (StringUtils.equals(LOCK_AND_SET_HEADERLINK_ACTION,
-						action)) {
+						tokenAction)) {
 					continueBuild = lockSystem(expandedSystemName, userId,
 							forceAction, logger, expandedNotice);
 					setHeaderLink(expandedSystemName, expandedHeaderLink,
 							logger);
 				} else if (StringUtils.equals(
-						UNLOCK_AND_RESET_HEADERLINK_ACTION, action)) {
+						UNLOCK_AND_RESET_HEADERLINK_ACTION, tokenAction)) {
 					continueBuild = unlockSystem(expandedSystemName, userId,
 							logger, expandedNotice);
 					setHeaderLink(expandedSystemName, null, logger);

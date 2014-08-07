@@ -33,16 +33,16 @@ public class ManageTokenPostBuild extends Recorder {
 
     private final String systemName;
     private final String headerLink;
-    private final String action;
+    private final String tokenAction;
     private final String notice;
     private final boolean forceAction;
 
     @DataBoundConstructor
-    public ManageTokenPostBuild(String systemName, String headerLink, String action, boolean forceAction, String notice) {
+    public ManageTokenPostBuild(String systemName, String headerLink, String tokenAction, boolean forceAction, String notice) {
         super();
         this.systemName = systemName;
         this.headerLink = headerLink;
-        this.action = action;
+        this.tokenAction = tokenAction;
         this.forceAction = forceAction;
         this.notice = notice;
     }
@@ -56,7 +56,7 @@ public class ManageTokenPostBuild extends Recorder {
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
 
-        return TokenManager.getInstance().manageToken(build, listener, systemName, headerLink, action, forceAction, notice);
+        return TokenManager.getInstance().manageToken(build, listener, systemName, headerLink, tokenAction, forceAction, notice);
     }
 
     @Extension
@@ -108,8 +108,8 @@ public class ManageTokenPostBuild extends Recorder {
     }
 
 
-    public String getAction() {
-        return action;
+    public String getTokenAction() {
+        return tokenAction;
     }
 
 
