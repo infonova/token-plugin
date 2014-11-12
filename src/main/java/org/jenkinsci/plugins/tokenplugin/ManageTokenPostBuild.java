@@ -86,7 +86,7 @@ public class ManageTokenPostBuild extends Recorder {
             return FormValidation.ok();
         }
 
-        public ListBoxModel doFillActionItems() {
+        public ListBoxModel doFillTokenActionItems() {
             ListBoxModel actionListBox = new ListBoxModel(3);
             actionListBox.add("Lock System", LOCK_ACTION);
             actionListBox.add("Unlock System", UNLOCK_ACTION);
