@@ -7,7 +7,7 @@
 	</parent>
 
 	<artifactId>token-plugin</artifactId>
-	<version>2.3-SNAPSHOT</version>
+	<version>2.3</version>
 	<packaging>hpi</packaging>
 	<name>Token Plugin</name>
 	<description>Let users grab and release Tokens for system in order to lock and unlock them for "public" use.</description>
