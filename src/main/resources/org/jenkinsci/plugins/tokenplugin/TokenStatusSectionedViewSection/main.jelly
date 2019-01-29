@@ -58,9 +58,9 @@
 			tform.submit();			
 			var strref='<a href="javascript:reloadPage()">-- refresh --</a>';
 			document.getElementById(token+"last").innerHTML = strref;
-			document.getElementById(token+"date").innerHTML = "autorefresh in 10 sec.";	
+			document.getElementById(token+"date").innerHTML = "autorefresh in 17 sec.";
 			//reloading page after 10 sec.
-			setTimeout(function(){reloadPage()},10000);	
+			setTimeout(function(){reloadPage()},17000);
 		}		
 		
 		function changelocked(token)
